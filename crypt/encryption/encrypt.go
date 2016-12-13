@@ -39,7 +39,7 @@ func Encrypt(key, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	padded, err := NewPkcs7Padding(b.BlockSize()).Pad(data)
+	padded, err := NewPkcs7Padding().Pad(data)
 	if err != nil {
 		return nil, err
 	}

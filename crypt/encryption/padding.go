@@ -3,6 +3,7 @@ package encryption
 import (
 	"bytes"
 	"errors"
+	"fmt"
 )
 
 type Padding interface {
@@ -36,8 +37,8 @@ func NewPkcs5Padding() Padding {
 // See https://tools.ietf.org/html/rfc2315 PKCS #7: Cryptographic Message
 // Syntax Version 1.5.
 // For example the block size for AES is 16 bytes (128 bits).
-func NewPkcs7Padding(blockSize int) Padding {
-	return &Padder{blockSize: blockSize}
+func NewPkcs7Padding() Padding {
+	return &Padder{blockSize: 16}
 }
 
 // Pad returns the byte array passed as a parameter padded with bytes such that
@@ -75,7 +76,7 @@ func (p *Padder) Unpad(data []byte) ([]byte, error) {
 	c := data[len(data)-1]
 	n := int(c)
 	if n == 0 || n > len(data) {
-		return nil, ErrInvalidPKCS7Padding
+		return nil, fmt.Errorf("Invalid padding length : %d=%d", n, len(data))
 	}
 
 	for i := 0; i < n; i++ {

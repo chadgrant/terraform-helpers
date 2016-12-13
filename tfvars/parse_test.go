@@ -10,7 +10,7 @@ func TestParse(t *testing.T) {
 
 	cd = "/Users/cgrant/Documents/credo/sms/sms_send_api/terraform/api"
 
-	files, err := Parents(cd)
+	files, err := Parents(cd, ".*.tfvars$")
 	if err != nil {
 		t.Error(err)
 	}

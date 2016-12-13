@@ -18,7 +18,7 @@ func Decrypt(key, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	padder := NewPkcs7Padding(b.BlockSize())
+	padder := NewPkcs7Padding()
 	cbc := cipher.NewCBCDecrypter(b, iv)
 	cbc.CryptBlocks(data, data)
 
