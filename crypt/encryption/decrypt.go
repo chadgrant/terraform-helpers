@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"bitbucket.org/credomobile/terraform/tfvars"
+	"github.com/chadgrant/terraform-helpers/tfvars"
 )
 
 func Decrypt(key, data []byte) ([]byte, error) {

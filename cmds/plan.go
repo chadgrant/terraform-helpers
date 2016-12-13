@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/credomobile/terraform/crypt/encryption"
-	"bitbucket.org/credomobile/terraform/state"
-	"bitbucket.org/credomobile/terraform/tfvars"
+	"github.com/chadgrant/terraform-helpers/crypt/encryption"
+	"github.com/chadgrant/terraform-helpers/state"
+	"github.com/chadgrant/terraform-helpers/tfvars"
 )
 
 func Plan(environment, stack, service, target string, applyplan, destroy bool) error {

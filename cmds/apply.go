@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"path"
 
-	"bitbucket.org/credomobile/terraform/state"
-	"bitbucket.org/credomobile/terraform/tfvars"
+	"github.com/chadgrant/terraform-helpers/state"
+	"github.com/chadgrant/terraform-helpers/tfvars"
 )
 
 func Apply(file, environment, stack, service, target string, pullState, pushState, destroy bool) error {

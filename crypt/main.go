@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"bitbucket.org/credomobile/terraform/crypt/encryption"
+	"github.com/chadgrant/terraform-helpers/encryption"
 )
 
 var key = ""

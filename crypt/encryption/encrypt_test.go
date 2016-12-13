@@ -32,7 +32,7 @@ func TestEncryptFiles(t *testing.T) {
 	wd, _ := os.Getwd()
 	wd = filepath.Join(wd, "terraform")
 
-	wd = "/Users/cgrant/Documents/credo"
+	wd = "/Users/cgrant/Documents/chadgrant"
 	err := EncryptFiles([]byte(os.Getenv("TERRAFORM_DECRYPT")), wd)
 	if err != nil {
 		t.Error(err)

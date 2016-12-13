@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"bitbucket.org/credomobile/terraform/tfvars"
+	"github.com/chadgrant/terraform-helpers/tfvars"
 )
 
 //Using a static IV for deterministic outputs for git - hooks,

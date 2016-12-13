@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"bitbucket.org/credomobile/terraform/cmds"
+	"github.com/chadgrant/terraform-helpers/cmds"
 )
 
 func main() {
