@@ -8,6 +8,9 @@ machine:
   environment:
     BUILD_NUMBER: "v0.1.$CIRCLE_BUILD_NUM"
 
+test:
+  override: ls
+
 deployment:
   release:
     branch: master
