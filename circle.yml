@@ -9,7 +9,8 @@ machine:
     BUILD_NUMBER: "v0.1.$CIRCLE_BUILD_NUM"
 
 test:
-  override: ls
+  override:
+    - ls
 
 deployment:
   release:
