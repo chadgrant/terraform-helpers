@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/chadgrant/terraform-helpers/encryption"
+	"github.com/chadgrant/terraform-helpers/crypt/encryption"
 )
 
 var key = ""
