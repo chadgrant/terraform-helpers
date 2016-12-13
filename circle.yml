@@ -1,0 +1,17 @@
+machine:
+  pre:
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+    - git config --global user.email "circleci@sentex.io"
+    - git config --global user.name "Circle CI"
+  services:
+    - docker
+  environment:
+    BUILD_NUMBER: "v0.1.$CIRCLE_BUILD_NUM"
+
+deployment:
+  release:
+    branch: master
+    commands:
+      - git tag -a "${BUILD_NUMBER}" -m "release ${BUILD_NUMBER}"
+      - git push origin --tags
+      - ./docker-build.sh
