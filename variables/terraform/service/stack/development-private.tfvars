@@ -1,2 +1,2 @@
 password=secret
-yrs=mo
+test=xyz

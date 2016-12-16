@@ -1,16 +1,15 @@
-package tfvars
+package variables
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestParents(t *testing.T) {
 	cd, _ := os.Getwd()
 
-	cd = "/Users/cgrant/Documents/credo/sms/sms_send_api/terraform/api"
-
-	files, err := Parents(cd, "")
+	files, err := Parents(filepath.Join(cd, "terraform", "service", "stack"), ".+.tfvars$")
 	if err != nil {
 		t.Error(err)
 	}
@@ -18,18 +17,12 @@ func TestParents(t *testing.T) {
 	if len(files) <= 0 {
 		t.Error("Found no files")
 	}
-
-	// for _, f := range files {
-	// 	fmt.Println(f)
-	// }
 }
 
 func TestDescendents(t *testing.T) {
 	cd, _ := os.Getwd()
 
-	cd = "/Users/cgrant/Documents/credo"
-
-	files, err := Descendents(cd, "")
+	files, err := Descendents(filepath.Join(cd, "terraform"), ".+.tfvars$")
 	if err != nil {
 		t.Error(err)
 	}
@@ -37,8 +30,4 @@ func TestDescendents(t *testing.T) {
 	if len(files) <= 0 {
 		t.Error("Found no files")
 	}
-
-	// for _, f := range files {
-	// 	fmt.Println(f)
-	// }
 }

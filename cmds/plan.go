@@ -7,12 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/chadgrant/terraform-helpers/crypt/encryption"
 	"github.com/chadgrant/terraform-helpers/state"
-	"github.com/chadgrant/terraform-helpers/tfvars"
 )
 
-func Plan(environment, stack, service, target string, applyplan, destroy bool) error {
+func Plan(bucket, bucketPrefix, environment, stack, service, target string, applyplan, destroy bool) error {
 	fmt.Printf("Environment: %s\n", environment)
 	fmt.Printf("Stack: %s\n", stack)
 	fmt.Printf("Service: %s\n", service)
@@ -24,10 +22,7 @@ func Plan(environment, stack, service, target string, applyplan, destroy bool) e
 	workingDir += string(os.PathSeparator) + stack
 
 	fmt.Printf("Working dir: %s\n", workingDir)
-	err := encryption.DecryptFiles([]byte(os.Getenv("TERRAFORM_DECRYPT")), workingDir)
-	if err != nil {
-		return err
-	}
+
 	namespace := []string{environment}
 	args := []string{"plan", "-module-depth=1"}
 
@@ -46,41 +41,30 @@ func Plan(environment, stack, service, target string, applyplan, destroy bool) e
 	}
 	args = append(args, fmt.Sprintf("-out=%s", outFile(namespace, destroy)))
 
-	foundFiles, err := tfvars.Parents(workingDir, "")
+	vars, varfiles, err := TFVars(workingDir, environment)
 	if err != nil {
 		return err
 	}
 
-	varfiles := make([]string, 0)
-	for _, af := range foundFiles {
-		if shouldInclude(environment, af) {
-			rel, ferr := filepath.Rel(workingDir, af)
-			if ferr != nil {
-				return ferr
-			}
-			args = append(args, fmt.Sprintf("-var-file=%s", rel))
-			varfiles = append(varfiles, af)
+	for _, af := range varfiles {
+		rel, ferr := filepath.Rel(workingDir, af)
+		if ferr != nil {
+			return fmt.Errorf("Could not make file relative %s", err.Error())
 		}
+		args = append(args, fmt.Sprintf("-var-file=%s", rel))
 	}
-
-	vars, err := tfvars.Parse(varfiles)
-	if err != nil {
-		return fmt.Errorf("Error parsing files: %s", err.Error())
-	}
-
-	tfvars.ExportTfvars(vars)
 
 	fmt.Println(strings.Join(args, " "))
 
-	bucketExists, err := state.Configure(vars["aws_region"], environment, service, stack)
+	bucketExists, err := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
 	if err != nil {
 		return fmt.Errorf("Error configuring remote state %s", err.Error())
 	}
 
 	wd, _ := os.Getwd()
 	os.Chdir(workingDir)
-	if err := beforePlan(); err != nil {
-		return err
+	if berr := beforePlan(); berr != nil {
+		return fmt.Errorf("Error before plan %s", berr.Error())
 	}
 
 	exec.Command("terraform", "get").Run()
@@ -91,13 +75,13 @@ func Plan(environment, stack, service, target string, applyplan, destroy bool) e
 		return err
 	}
 
-	if err := afterPlan(); err != nil {
-		return err
+	if aerr := afterPlan(); aerr != nil {
+		return fmt.Errorf("Error after plan %s", aerr.Error())
 	}
 	os.Chdir(wd)
 
 	if applyplan {
-		err = Apply(outFile(namespace, destroy), environment, stack, service, target, false, !bucketExists, destroy)
+		err = Apply(bucket, bucketPrefix, outFile(namespace, destroy), environment, stack, service, target, false, !bucketExists, destroy)
 		if err != nil {
 			return fmt.Errorf("Error applying plan: %s", err.Error())
 		}
@@ -112,21 +96,6 @@ func outFile(ns []string, destroy bool) string {
 		c = append([]string{"destroy"}, ns...)
 	}
 	return fmt.Sprintf("/terraform/plans/%s.plan", strings.Join(c, "_"))
-}
-
-func shouldInclude(env, af string) bool {
-	paths := strings.Split(af, string(os.PathSeparator))
-	f := paths[len(paths)-1]
-
-	if strings.Contains(f, strings.ToLower(env)) && strings.HasSuffix(f, ".tfvars") {
-		return true
-	}
-
-	if f == "global.tfvars" || f == "terraform.tfvars" || f == "private.tfvars" {
-		return true
-	}
-
-	return false
 }
 
 func beforePlan() error {

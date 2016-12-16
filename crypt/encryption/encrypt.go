@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/chadgrant/terraform-helpers/tfvars"
+	"github.com/chadgrant/terraform-helpers/variables"
 )
 
 //Using a static IV for deterministic outputs for git - hooks,
@@ -52,7 +52,7 @@ func Encrypt(key, data []byte) ([]byte, error) {
 }
 
 func EncryptFiles(key []byte, path string) error {
-	files, err := tfvars.Descendents(path, ".+\\.tfvars$|.+\\.pem$")
+	files, err := variables.Descendents(path, ".+\\.tfvars$|.+\\.pem$")
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,6 @@ func EncryptFiles(key []byte, path string) error {
 		if !shouldEncrypt(f) {
 			continue
 		}
-		fmt.Printf("Encrypting: %s\n", f)
 
 		data, err := ioutil.ReadFile(f)
 		if err != nil {
@@ -71,23 +70,56 @@ func EncryptFiles(key []byte, path string) error {
 			continue
 		}
 
+		file := fmt.Sprintf("%s.enc", f)
+
+		if _, sterr := os.Stat(file); sterr == nil {
+			dec, derr := DecryptFile(key, file)
+			if derr == nil {
+				if areEqual(dec, data) {
+					continue
+				}
+			}
+		}
+
+		fmt.Printf("Encrypting: %s\n", file)
+
 		enc, err := Encrypt(key, data)
 		if err != nil {
 			return err
 		}
 
-		nf := fmt.Sprintf("%s.enc", f)
-
-		os.Remove(nf)
+		os.Remove(file)
 
 		b64 := base64.StdEncoding.EncodeToString(enc)
 
-		werr := ioutil.WriteFile(nf, []byte(b64), 0666)
-		if werr != nil {
-			return werr
+		err = ioutil.WriteFile(file, []byte(b64), 0666)
+		if err != nil {
+			return fmt.Errorf("Error writing file %s.enc %s", f, err.Error())
 		}
 	}
 	return nil
+}
+
+func areEqual(a, b []byte) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func shouldEncrypt(path string) bool {

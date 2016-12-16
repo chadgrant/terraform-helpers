@@ -19,6 +19,8 @@ func realMain() int {
 	var service = os.Getenv("SERVICE")
 	var stack string
 	var target string
+	var bucket string
+	var bucketPrefix string
 	var destroy bool
 
 	file := os.Args[1:][0]
@@ -34,6 +36,8 @@ func realMain() int {
 	flags.Usage = printUsage
 	flags.StringVar(&environment, "environment", environment, "development|staging|production")
 	flags.StringVar(&stack, "stack", stack, "name of stack")
+	flags.StringVar(&bucket, "bucket", os.Getenv("BUCKET"), "name of s3 bucket")
+	flags.StringVar(&bucketPrefix, "bucket-prefix", os.Getenv("BUCKET_PREFIX"), "prefix of bucket")
 	flags.StringVar(&target, "target", "", "name of target provider.resource.id")
 	flags.StringVar(&service, "service", service, "name of service")
 	flags.BoolVar(&destroy, "destroy", destroy, "create a destroy plan")
@@ -49,6 +53,11 @@ func realMain() int {
 	}
 	file = flags.Args()[0]
 
+	if len(bucket) <= 0 && len(bucketPrefix) <= 0 {
+		fmt.Println("bucket or bucket-prefix is required")
+		return 1
+	}
+
 	if err := validateEnvironment(environment); err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -56,7 +65,7 @@ func realMain() int {
 
 	destroy = validateBoolFlag("destroy", destroy)
 
-	if err := cmds.Apply(file, environment, stack, service, target, true, false, destroy); err != nil {
+	if err := cmds.Apply(bucket, bucketPrefix, file, environment, stack, service, target, true, false, destroy); err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
@@ -96,6 +105,8 @@ const helpText = `Usage: apply [options] [planfile]
 	-environment        development,staging or production (environment var ENVIRONMENT)
   -service            the service you are deploying (optional, environment var SERVICE)
 	-stack              the stack you are deploying
+	-bucket							the S3 bucket state is stored (environment var BUCKET)
+	-bucket-prefix			if bucket is not passed, bucket is derived. {bucket-prefix}-{aws-region}-{environment} (environment var BUCKET_PREFIX)
 	--destroy						are we destroying?
 
 Options:

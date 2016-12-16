@@ -1,11 +1,11 @@
-package tfvars
+package variables
 
 import (
 	"os"
 	"strings"
 )
 
-func ExportTfvars(vars map[string]string) {
+func ExportEnvironmentVariables(vars map[string]string) {
 	for k, v := range vars {
 
 		if k == "aws_access_key" {
@@ -24,7 +24,7 @@ func ExportTfvars(vars map[string]string) {
 	}
 }
 
-func importTfvars() map[string]string {
+func ImportEnvironmentVariables() map[string]string {
 	vars := make(map[string]string, 0)
 
 	for _, e := range os.Environ() {

@@ -1,4 +1,4 @@
-package tfvars
+package variables
 
 import (
 	"os"
@@ -8,11 +8,7 @@ import (
 func TestImportTfvars(t *testing.T) {
 	os.Setenv("TF_VAR_TEST", "test")
 
-	vars := importTfvars()
-
-	// for k, v := range vars {
-	// 	fmt.Printf("%s=%s", k, v)
-	// }
+	vars := ImportEnvironmentVariables()
 
 	if vars["TEST"] != "test" {
 		t.Fail()

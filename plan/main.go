@@ -19,13 +19,16 @@ func realMain() int {
 	var stack string
 	var service string
 	var target string
+	var bucket string
+	var bucketPrefix string
 	var destroy bool
 	var apply bool
 
 	flags := flag.NewFlagSet("plan", flag.ExitOnError)
 	flags.Usage = printUsage
 	flags.StringVar(&environment, "environment", os.Getenv("ENVIRONMENT"), "development|staging|production")
-	//flags.StringVar(&stack, "stack", os.Getenv("STACK"), "name of stack")
+	flags.StringVar(&bucket, "bucket", os.Getenv("BUCKET"), "name of s3 bucket")
+	flags.StringVar(&bucketPrefix, "bucket-prefix", os.Getenv("BUCKET_PREFIX"), "prefix of bucket")
 	flags.StringVar(&target, "target", os.Getenv("TARGET"), "name of target provider.resource.id")
 	flags.StringVar(&service, "service", os.Getenv("SERVICE"), "name of service")
 	flags.BoolVar(&destroy, "destroy", false, "create a destroy plan")
@@ -47,10 +50,15 @@ func realMain() int {
 	}
 	stack = strings.TrimRight(flags.Args()[0], "/")
 
+	if len(bucket) <= 0 && len(bucketPrefix) <= 0 {
+		fmt.Println("bucket or bucket-prefix is required")
+		return 1
+	}
+
 	destroy = validateBoolFlag("destroy", destroy)
 	apply = validateBoolFlag("apply", apply)
 
-	if err := cmds.Plan(environment, stack, service, target, apply, destroy); err != nil {
+	if err := cmds.Plan(bucket, bucketPrefix, environment, stack, service, target, apply, destroy); err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
@@ -84,6 +92,10 @@ func validateBoolFlag(name string, flagval bool) bool {
 	return false
 }
 
+func getBucket(prefix, region, environment string) string {
+	return fmt.Sprintf("%s-%s-%s", prefix, region, environment)
+}
+
 const helpText = `Usage: plan [options] [stack]
   plan searches recursively for tfvar files stored under /terraform root directory
   to pass into terraform as variables using a convention:
@@ -103,7 +115,9 @@ const helpText = `Usage: plan [options] [stack]
 Options:
   -environment        development,staging or production (environment var ENVIRONMENT)
   -service            the service you are deploying (optional, environment var SERVICE)
-	--apply             apply the plan immedeately after planning
+	-bucket							the S3 bucket state is stored (environment var BUCKET)
+	-bucket-prefix			if bucket is not passed, bucket is derived. {bucket-prefix}-{aws-region}-{environment} (environment var BUCKET_PREFIX)
+	--apply             apply the plan immediately after planning
 	--destroy           plan a destroy
   -target             the terraform target, see terraform docs
 

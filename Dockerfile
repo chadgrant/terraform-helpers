@@ -2,7 +2,8 @@ FROM golang:latest
 
 WORKDIR /go/src/github.com/chadgrant/terraform-helpers/
 
-RUN go get -u github.com/aws/aws-sdk-go/aws && \
+RUN go get -u github.com/hashicorp/terraform && \
+    go get -u github.com/aws/aws-sdk-go/aws && \
     go get -u github.com/mitchellh/gox && \
     go get -u github.com/tcnksm/ghr
 

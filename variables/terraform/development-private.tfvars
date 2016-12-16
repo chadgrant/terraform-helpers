@@ -1,2 +1,1 @@
 password=secret
-yrs=mo

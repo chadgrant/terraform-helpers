@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/chadgrant/terraform-helpers/tfvars"
+	"github.com/chadgrant/terraform-helpers/variables"
 )
 
 func Decrypt(key, data []byte) ([]byte, error) {
@@ -31,7 +31,7 @@ func Decrypt(key, data []byte) ([]byte, error) {
 }
 
 func DecryptFiles(key []byte, path string) error {
-	files, err := tfvars.Parents(path, ".+\\.enc$")
+	files, err := variables.Parents(path, ".+\\.enc$")
 	if err != nil {
 		return err
 	}
@@ -40,26 +40,30 @@ func DecryptFiles(key []byte, path string) error {
 
 		fmt.Printf("Decrypting: %s\n", f)
 
-		b64, err := ioutil.ReadFile(f)
-		if err != nil {
-			return err
-		}
-
-		data, err := base64.StdEncoding.DecodeString(string(b64))
-		if err != nil {
-			return err
-		}
-
-		dec, err := Decrypt(key, data)
+		dec, err := DecryptFile(key, f)
 		if err != nil {
 			return err
 		}
 
 		err = ioutil.WriteFile(strings.Replace(f, ".enc", "", 1), dec, 0666)
 		if err != nil {
-			return err
+			return fmt.Errorf("Writing encrypted file %s", err.Error())
 		}
 	}
 
 	return nil
+}
+
+func DecryptFile(key []byte, f string) ([]byte, error) {
+	b64, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, fmt.Errorf("Could not read file %s %s", f, err.Error())
+	}
+
+	data, err := base64.StdEncoding.DecodeString(string(b64))
+	if err != nil {
+		return nil, fmt.Errorf("Decoding base64 %s", err.Error())
+	}
+
+	return Decrypt(key, data)
 }

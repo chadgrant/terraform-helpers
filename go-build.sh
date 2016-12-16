@@ -18,6 +18,9 @@ if [ "$BUILD_NUMBER" != "" ]; then
 
   cd ../crypt
   gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/crypt_{{.OS}}_{{.Arch}}"
+
+  cd ../tfvars
+  gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/tfvars_{{.OS}}_{{.Arch}}"
 fi
 
 if [ "$GITHUB_TOKEN" != "" ]; then

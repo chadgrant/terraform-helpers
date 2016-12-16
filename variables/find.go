@@ -1,4 +1,4 @@
-package tfvars
+package variables
 
 import (
 	"io/ioutil"
@@ -16,9 +16,6 @@ func Parents(path, re string) ([]string, error) {
 }
 
 func Descendents(path, re string) ([]string, error) {
-	if len(re) == 0 {
-		re = ".+\\.tfvars$"
-	}
 	return findFiles(path, re, walkDownDirectories)
 }
 

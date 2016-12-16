@@ -13,9 +13,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func Configure(region, environment, service, stack string) (bool, error) {
+func Configure(bucket, bucketPrefix, region, environment, service, stack string) (bool, error) {
 
-	bucket := getBucket(region, environment)
+	if len(bucket) <= 0 {
+		bucket = getBucket(bucketPrefix, region, environment)
+	}
 	bucketDir := getBucketDir(environment, service, stack)
 
 	args := []string{
@@ -67,8 +69,8 @@ func runTerraformCmd(directory string, args []string) error {
 	return err
 }
 
-func getBucket(region, environment string) string {
-	return fmt.Sprintf("credo-%s-%s", region, environment)
+func getBucket(prefix, region, environment string) string {
+	return fmt.Sprintf("%s-%s-%s", prefix, region, environment)
 }
 
 func getBucketDir(environment, service, stack string) string {

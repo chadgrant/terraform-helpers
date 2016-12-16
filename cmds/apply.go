@@ -7,10 +7,9 @@ import (
 	"path"
 
 	"github.com/chadgrant/terraform-helpers/state"
-	"github.com/chadgrant/terraform-helpers/tfvars"
 )
 
-func Apply(file, environment, stack, service, target string, pullState, pushState, destroy bool) error {
+func Apply(bucket, bucketPrefix, file, environment, stack, service, target string, pullState, pushState, destroy bool) error {
 	fmt.Printf("Environment: %s\n", environment)
 	fmt.Printf("Stack: %s\n", stack)
 	fmt.Printf("Service: %s\n", service)
@@ -35,28 +34,14 @@ func Apply(file, environment, stack, service, target string, pullState, pushStat
 
 	fmt.Printf("Working dir: %s\n", workingDir)
 
-	foundFiles, err := tfvars.Parents(workingDir, "")
+	vars, _, err := TFVars(workingDir, environment)
 	if err != nil {
-		return fmt.Errorf("Error getting var files %s", err.Error())
+		return err
 	}
-
-	varfiles := make([]string, 0)
-	for _, af := range foundFiles {
-		if shouldInclude(environment, af) {
-			varfiles = append(varfiles, af)
-		}
-	}
-
-	vars, err := tfvars.Parse(varfiles)
-	if err != nil {
-		return fmt.Errorf("Error parsing varfiles %s", err.Error())
-	}
-
-	tfvars.ExportTfvars(vars)
 
 	bucketExists := true
 	if pullState {
-		bucketExists, err = state.Configure(vars["aws_region"], environment, service, stack)
+		bucketExists, err = state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
 		if err != nil {
 			return fmt.Errorf("Error configuring remote state %s", err.Error())
 		}
@@ -80,7 +65,7 @@ func Apply(file, environment, stack, service, target string, pullState, pushStat
 
 	// we just created the bucket
 	if !bucketExists && pushState {
-		if _, serr := state.Configure(vars["aws_region"], environment, service, stack); serr != nil {
+		if _, serr := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack); serr != nil {
 			return fmt.Errorf("Error pushing remote state %s", serr.Error())
 		}
 	}
