@@ -26,16 +26,20 @@ func realMain() int {
 		return 1
 	}
 
+	if len(environment) <= 0 {
+		fmt.Println("environment is required")
+		return 1
+	}
+
 	if err := validateEnvironment(environment); err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
 
 	dir, _ := os.Getwd()
-	if len(flags.Args()) <= 0 {
-		dir = flags.Args()[0]
+	if len(flags.Args()) > 0 {
+		dir = strings.TrimRight(flags.Args()[0], "/")
 	}
-	dir = strings.TrimRight(dir, "/")
 
 	vars, _, err := cmds.TFVars(dir, environment)
 	if err != nil {
