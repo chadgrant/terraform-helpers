@@ -8,7 +8,10 @@ import (
 	"strings"
 
 	"github.com/chadgrant/terraform-helpers/state"
+	"github.com/chadgrant/terraform-helpers/variables"
 )
+
+const terraformRoot = "/terraform"
 
 func Plan(bucket, bucketPrefix, environment, stack, service, target string, applyplan, destroy bool) error {
 	fmt.Printf("Environment: %s\n", environment)
@@ -44,6 +47,10 @@ func Plan(bucket, bucketPrefix, environment, stack, service, target string, appl
 	vars, varfiles, err := TFVars(workingDir, environment)
 	if err != nil {
 		return err
+	}
+
+	if val, ok := vars["tag_prefix"]; ok {
+		variables.Replace(terraformRoot, "*.tf", "\\${\\s*var\\.tag_prefix\\s*}", val)
 	}
 
 	for _, af := range varfiles {
