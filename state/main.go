@@ -13,6 +13,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
+var env = map[string]string{
+	"development": "dev",
+	"staging":     "stg",
+	"production":  "prd",
+}
+
 func Configure(bucket, bucketPrefix, region, environment, service, stack string) (bool, error) {
 
 	if len(bucket) <= 0 {
@@ -70,6 +76,10 @@ func runTerraformCmd(directory string, args []string) error {
 }
 
 func getBucket(prefix, region, environment string) string {
+	if short, ok := env[environment]; ok {
+		environment = short
+	}
+
 	return fmt.Sprintf("%s-%s-%s", prefix, region, environment)
 }
 

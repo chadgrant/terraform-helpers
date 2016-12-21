@@ -1,6 +1,7 @@
 package variables
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -24,6 +25,9 @@ func Replace(dir, ext, find, repl string) error {
 		}
 
 		if m {
+
+			fmt.Printf("Replacing %s with %s in %s\n", find, repl, path)
+
 			read, err := ioutil.ReadFile(path)
 			if err != nil {
 				return err
@@ -33,7 +37,6 @@ func Replace(dir, ext, find, repl string) error {
 			if err != nil {
 				return err
 			}
-			//nc := strings.Replace(string(read), find, repl, -1)
 
 			nc := re.ReplaceAll(read, []byte(repl))
 
