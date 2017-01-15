@@ -9,7 +9,7 @@ func ExportEnvironmentVariables(vars map[string]string) {
 	for k, v := range vars {
 
 		if k == "aws_access_key" {
-			os.Setenv("AWS_ACCESS_KEY", v)
+			os.Setenv("AWS_ACCESS_KEY_ID", v)
 		}
 
 		if k == "aws_secret_key" {
