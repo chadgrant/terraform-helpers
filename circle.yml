@@ -19,3 +19,4 @@ deployment:
       - git tag -a "${BUILD_NUMBER}" -m "release ${BUILD_NUMBER}"
       - git push origin --tags
       - ./docker-build.sh
+      - curl -H "Content-Type: application/json" --data '{"build": true}' -X POST https://registry.hub.docker.com/u/chadgrant/terraform/trigger/5d671ca8-837b-4227-9e5e-db5ddee7c1fb/

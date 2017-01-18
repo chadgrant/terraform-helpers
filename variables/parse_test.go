@@ -33,6 +33,7 @@ func TestParseKeyValueFile(t *testing.T) {
 	}
 
 	assertValue(t, parsed, "aws_region", "us-west-2")
+	assertValue(t, parsed, "application", "cs-genres-api")
 }
 
 func assertValue(t *testing.T, m map[string]string, k, v string) {

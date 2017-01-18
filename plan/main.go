@@ -15,13 +15,13 @@ func main() {
 }
 
 func realMain() int {
-	var environment string
-	var key string
+	var environment = os.Getenv("ENVIRONMENT")
+	var key = os.Getenv("TERRAFORM_DECRYPT")
 	var stack string
-	var service string
+	var service = os.Getenv("SERVICE")
 	var target string
-	var bucket string
-	var bucketPrefix string
+	var bucket = os.Getenv("BUCKET")
+	var bucketPrefix = os.Getenv("BUCKET_PREFIX")
 	var destroy bool
 	var apply bool
 
@@ -38,6 +38,11 @@ func realMain() int {
 
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		flags.Usage()
+		return 1
+	}
+
+	if len(key) <= 0 {
+		fmt.Println("decryption key required")
 		return 1
 	}
 

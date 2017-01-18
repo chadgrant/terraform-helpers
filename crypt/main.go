@@ -12,6 +12,7 @@ var key = ""
 
 func main() {
 	var operation string
+	var key = os.Getenv("TERRAFORM_DECRYPT")
 
 	flags := flag.NewFlagSet("crypt", flag.ExitOnError)
 	flags.Usage = printUsage
@@ -21,6 +22,11 @@ func main() {
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		flags.Usage()
 		os.Exit(1)
+		return
+	}
+
+	if len(key) <= 0 {
+		fmt.Println("decryption key required")
 		return
 	}
 

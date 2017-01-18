@@ -7,3 +7,5 @@ escaped="x:\""
 anothertest = "asdasdsd#adsasdasd"
 
 anothertest = "asdasdsd#adsasdasd" #comment
+
+application   =  "cs-genres-api"

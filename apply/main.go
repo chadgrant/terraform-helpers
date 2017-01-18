@@ -15,7 +15,7 @@ func main() {
 }
 
 func realMain() int {
-	var key string
+	var key = os.Getenv("TERRAFORM_DECRYPT")
 	var environment = os.Getenv("ENVIRONMENT")
 	var service = os.Getenv("SERVICE")
 	var stack string
@@ -54,6 +54,11 @@ func realMain() int {
 		return 1
 	}
 	file = flags.Args()[0]
+
+	if len(key) <= 0 {
+		fmt.Println("decryption key required")
+		return 1
+	}
 
 	if len(bucket) <= 0 && len(bucketPrefix) <= 0 {
 		fmt.Println("bucket or bucket-prefix is required")

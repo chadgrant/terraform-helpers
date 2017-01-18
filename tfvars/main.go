@@ -15,8 +15,8 @@ func main() {
 }
 
 func realMain() int {
-	var environment string
-	var key string
+	var environment = os.Getenv("ENVIRONMENT")
+	var key = os.Getenv("TERRAFORM_DECRYPT")
 
 	flags := flag.NewFlagSet("tfvars", flag.ExitOnError)
 	flags.Usage = printUsage
