@@ -14,7 +14,7 @@ if [ "$BUILD_NUMBER" != "" ]; then
     echo "Building $d..."
     gox -osarch "$OSARCH" \
       -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" \
-      -output "$OUT/$d_{{.OS}}_{{.Arch}}"
+      -output "$OUT/${d}_{{.OS}}_{{.Arch}}"
     cd -
   done
 fi
