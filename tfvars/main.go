@@ -16,10 +16,12 @@ func main() {
 
 func realMain() int {
 	var environment string
+	var key string
 
 	flags := flag.NewFlagSet("tfvars", flag.ExitOnError)
 	flags.Usage = printUsage
 	flags.StringVar(&environment, "environment", os.Getenv("ENVIRONMENT"), "development|staging|production")
+	flags.StringVar(&key, "key", os.Getenv("TERRAFORM_DECRYPT"), "encryption key")
 
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		flags.Usage()
@@ -41,7 +43,7 @@ func realMain() int {
 		dir = strings.TrimRight(flags.Args()[0], "/")
 	}
 
-	vars, _, err := cmds.TFVars(dir, environment)
+	vars, _, err := cmds.TFVars(key, dir, environment)
 	if err != nil {
 		fmt.Println(err.Error())
 		return 1
@@ -96,6 +98,7 @@ const helpText = `Usage: tfvars [options] [dir]
 
 Options:
   -environment        development,staging or production (environment var ENVIRONMENT)
+  -key								decryption key
 
 Output key=value
 `

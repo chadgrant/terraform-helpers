@@ -3,24 +3,21 @@ set -e
 
 OUT="/out/dist"
 BUILD_DATE=$(date -u '+%Y/%m/%d %H:%M:%S')
+OSARCH="darwin/amd64 linux/amd64 windows/amd64 freebsd/amd64 linux/arm linux/arm64"
 
 mkdir -p $OUT
 
+
 if [ "$BUILD_NUMBER" != "" ]; then
-  cd apply
-  gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/apply_{{.OS}}_{{.Arch}}"
-
-  cd ../plan
-  gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/plan_{{.OS}}_{{.Arch}}"
-
-  cd ../state
-  gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/state_{{.OS}}_{{.Arch}}"
-
-  cd ../crypt
-  gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/crypt_{{.OS}}_{{.Arch}}"
-
-  cd ../tfvars
-  gox -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" -output "$OUT/tfvars_{{.OS}}_{{.Arch}}"
+  for d in "apply" "plan" "state" "crypt" "tfvars"
+  do
+    cd $d
+    echo "Building $d..."
+    gox -osarch "$OSARCH" \
+      -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" \
+      -output "$OUT/apply_{{.OS}}_{{.Arch}}"
+    cd -
+  done
 fi
 
 if [ "$GITHUB_TOKEN" != "" ]; then

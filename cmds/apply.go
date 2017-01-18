@@ -9,7 +9,7 @@ import (
 	"github.com/chadgrant/terraform-helpers/state"
 )
 
-func Apply(bucket, bucketPrefix, file, environment, stack, service, target string, pullState, pushState, destroy bool) error {
+func Apply(key, bucket, bucketPrefix, file, environment, stack, service, target string, pullState, pushState, destroy bool) error {
 	fmt.Printf("Environment: %s\n", environment)
 	fmt.Printf("Stack: %s\n", stack)
 	fmt.Printf("Service: %s\n", service)
@@ -34,7 +34,7 @@ func Apply(bucket, bucketPrefix, file, environment, stack, service, target strin
 
 	fmt.Printf("Working dir: %s\n", workingDir)
 
-	vars, _, err := TFVars(workingDir, environment)
+	vars, _, err := TFVars(key, workingDir, environment)
 	if err != nil {
 		return err
 	}

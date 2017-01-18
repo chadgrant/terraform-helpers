@@ -9,9 +9,9 @@ import (
 	"github.com/chadgrant/terraform-helpers/variables"
 )
 
-func TFVars(dir, environment string) (map[string]string, []string, error) {
+func TFVars(key, dir, environment string) (map[string]string, []string, error) {
 
-	err := encryption.DecryptFiles([]byte(os.Getenv("TERRAFORM_DECRYPT")), dir)
+	err := encryption.DecryptFiles([]byte(key), dir)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Could not decrypt terraform files %s", err.Error())
 	}

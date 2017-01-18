@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.7.3
 
 WORKDIR /go/src/github.com/chadgrant/terraform-helpers/
 

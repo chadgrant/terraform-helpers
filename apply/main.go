@@ -15,6 +15,7 @@ func main() {
 }
 
 func realMain() int {
+	var key string
 	var environment = os.Getenv("ENVIRONMENT")
 	var service = os.Getenv("SERVICE")
 	var stack string
@@ -34,6 +35,7 @@ func realMain() int {
 
 	flags := flag.NewFlagSet("apply", flag.ExitOnError)
 	flags.Usage = printUsage
+	flags.StringVar(&key, "key", os.Getenv("TERRAFORM_DECRYPT"), "encryption key")
 	flags.StringVar(&environment, "environment", environment, "development|staging|production")
 	flags.StringVar(&stack, "stack", stack, "name of stack")
 	flags.StringVar(&bucket, "bucket", os.Getenv("BUCKET"), "name of s3 bucket")
@@ -65,7 +67,7 @@ func realMain() int {
 
 	destroy = validateBoolFlag("destroy", destroy)
 
-	if err := cmds.Apply(bucket, bucketPrefix, file, environment, stack, service, target, true, false, destroy); err != nil {
+	if err := cmds.Apply(key, bucket, bucketPrefix, file, environment, stack, service, target, true, false, destroy); err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
@@ -102,6 +104,7 @@ func validateBoolFlag(name string, flagval bool) bool {
 const helpText = `Usage: apply [options] [planfile]
 	Options are derived by the plan filename, {destroy}_{environment}_{service}_{stack}.plan
 
+  -key								decryption key
 	-environment        development,staging or production (environment var ENVIRONMENT)
   -service            the service you are deploying (optional, environment var SERVICE)
 	-stack              the stack you are deploying

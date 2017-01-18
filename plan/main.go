@@ -16,6 +16,7 @@ func main() {
 
 func realMain() int {
 	var environment string
+	var key string
 	var stack string
 	var service string
 	var target string
@@ -26,6 +27,7 @@ func realMain() int {
 
 	flags := flag.NewFlagSet("plan", flag.ExitOnError)
 	flags.Usage = printUsage
+	flags.StringVar(&key, "key", os.Getenv("TERRAFORM_DECRYPT"), "encryption key")
 	flags.StringVar(&environment, "environment", os.Getenv("ENVIRONMENT"), "development|staging|production")
 	flags.StringVar(&bucket, "bucket", os.Getenv("BUCKET"), "name of s3 bucket")
 	flags.StringVar(&bucketPrefix, "bucket-prefix", os.Getenv("BUCKET_PREFIX"), "prefix of bucket")
@@ -58,7 +60,7 @@ func realMain() int {
 	destroy = validateBoolFlag("destroy", destroy)
 	apply = validateBoolFlag("apply", apply)
 
-	if err := cmds.Plan(bucket, bucketPrefix, environment, stack, service, target, apply, destroy); err != nil {
+	if err := cmds.Plan(key, bucket, bucketPrefix, environment, stack, service, target, apply, destroy); err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
@@ -113,6 +115,7 @@ const helpText = `Usage: plan [options] [stack]
 					environment var = STACK
 
 Options:
+  -key								decryption key
   -environment        development,staging or production (environment var ENVIRONMENT)
   -service            the service you are deploying (optional, environment var SERVICE)
 	-bucket							the S3 bucket state is stored (environment var BUCKET)

@@ -13,7 +13,7 @@ import (
 
 const terraformRoot = "/terraform"
 
-func Plan(bucket, bucketPrefix, environment, stack, service, target string, applyplan, destroy bool) error {
+func Plan(key, bucket, bucketPrefix, environment, stack, service, target string, applyplan, destroy bool) error {
 	fmt.Printf("Environment: %s\n", environment)
 	fmt.Printf("Stack: %s\n", stack)
 	fmt.Printf("Service: %s\n", service)
@@ -44,7 +44,7 @@ func Plan(bucket, bucketPrefix, environment, stack, service, target string, appl
 	}
 	args = append(args, fmt.Sprintf("-out=%s", outFile(namespace, destroy)))
 
-	vars, varfiles, err := TFVars(workingDir, environment)
+	vars, varfiles, err := TFVars(key, workingDir, environment)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func Plan(bucket, bucketPrefix, environment, stack, service, target string, appl
 	os.Chdir(wd)
 
 	if applyplan {
-		err = Apply(bucket, bucketPrefix, outFile(namespace, destroy), environment, stack, service, target, false, !bucketExists, destroy)
+		err = Apply(key, bucket, bucketPrefix, outFile(namespace, destroy), environment, stack, service, target, false, !bucketExists, destroy)
 		if err != nil {
 			return fmt.Errorf("Error applying plan: %s", err.Error())
 		}
