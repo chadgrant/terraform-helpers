@@ -7,7 +7,6 @@ OSARCH="darwin/amd64 linux/amd64 windows/amd64 freebsd/amd64 linux/arm linux/arm
 
 mkdir -p $OUT
 
-
 if [ "$BUILD_NUMBER" != "" ]; then
   for d in "apply" "plan" "state" "crypt" "tfvars"
   do
@@ -15,7 +14,7 @@ if [ "$BUILD_NUMBER" != "" ]; then
     echo "Building $d..."
     gox -osarch "$OSARCH" \
       -ldflags="-X \"main.BuildDate=$BUILD_DATE\" -X \"main.Version=$BUILD_NUMBER\"" \
-      -output "$OUT/apply_{{.OS}}_{{.Arch}}"
+      -output "$OUT/$d_{{.OS}}_{{.Arch}}"
     cd -
   done
 fi
