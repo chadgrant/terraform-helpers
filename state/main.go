@@ -22,7 +22,7 @@ var env = map[string]string{
 func Configure(bucket, bucketPrefix, region, environment, service, stack string) error {
 
 	if len(bucket) <= 0 {
-		bucket, err = getBucket(bucketPrefix, region, environment)
+		bucket, err := getBucket(bucketPrefix, region, environment)
 		if err != nil {
 			return err
 		}
@@ -74,12 +74,20 @@ func getBucket(prefix, region, environment string) (string, error) {
 	}
 
 	b := fmt.Sprintf("%s-%s-%s", prefix, region, environment)
-	if bucketExists(b) {
+	exists, err := bucketExists(b)
+	if err != nil {
+		return "", err
+	}
+	if exists {
 		return b, nil
 	}
 
-	b := fmt.Sprintf("%s-%s-%s", prefix, environment, region)
-	if bucketExists(b) {
+	b = fmt.Sprintf("%s-%s-%s", prefix, environment, region)
+	exists, err = bucketExists(b)
+	if err != nil {
+		return "", err
+	}
+	if exists {
 		return b, nil
 	}
 
