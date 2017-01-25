@@ -72,7 +72,7 @@ func realMain() int {
 
 	destroy = validateBoolFlag("destroy", destroy)
 
-	if err := cmds.Apply(key, bucket, bucketPrefix, file, environment, stack, service, target, true, false, destroy); err != nil {
+	if err := cmds.Apply(key, bucket, bucketPrefix, file, environment, stack, service, target, true, destroy); err != nil {
 		fmt.Println(err.Error())
 		return 1
 	}
