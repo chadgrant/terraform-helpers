@@ -9,7 +9,7 @@ import (
 	"github.com/chadgrant/terraform-helpers/state"
 )
 
-func Apply(key, bucket, bucketPrefix, file, environment, stack, service, target string, pullState, pushState, destroy bool) error {
+func Apply(key, bucket, bucketPrefix, file, environment, stack, service, target string, pullState, destroy bool) error {
 	fmt.Printf("Environment: %s\n", environment)
 	fmt.Printf("Stack: %s\n", stack)
 	fmt.Printf("Service: %s\n", service)
@@ -39,12 +39,9 @@ func Apply(key, bucket, bucketPrefix, file, environment, stack, service, target 
 		return err
 	}
 
-	bucketExists := true
-	if pullState {
-		bucketExists, err = state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
-		if err != nil {
-			return fmt.Errorf("Error configuring remote state %s", err.Error())
-		}
+	err = state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
+	if err != nil {
+		return fmt.Errorf("Error configuring remote state\n %s", err.Error())
 	}
 
 	wd, _ := os.Getwd()
@@ -63,11 +60,8 @@ func Apply(key, bucket, bucketPrefix, file, environment, stack, service, target 
 		return err
 	}
 
-	// we just created the bucket
-	if !bucketExists && pushState {
-		if _, serr := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack); serr != nil {
-			return fmt.Errorf("Error pushing remote state %s", serr.Error())
-		}
+	if _, serr := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack); serr != nil {
+		return fmt.Errorf("Error pushing remote state %s", serr.Error())
 	}
 
 	if !destroy {

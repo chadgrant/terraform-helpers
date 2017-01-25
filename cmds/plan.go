@@ -63,7 +63,7 @@ func Plan(key, bucket, bucketPrefix, environment, stack, service, target string,
 
 	fmt.Println(strings.Join(args, " "))
 
-	bucketExists, err := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
+	err := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
 	if err != nil {
 		return fmt.Errorf("Error configuring remote state %s", err.Error())
 	}
@@ -88,7 +88,7 @@ func Plan(key, bucket, bucketPrefix, environment, stack, service, target string,
 	os.Chdir(wd)
 
 	if applyplan {
-		err = Apply(key, bucket, bucketPrefix, outFile(namespace, destroy), environment, stack, service, target, false, !bucketExists, destroy)
+		err = Apply(key, bucket, bucketPrefix, outFile(namespace, destroy), environment, stack, service, target, false, destroy)
 		if err != nil {
 			return fmt.Errorf("Error applying plan: %s", err.Error())
 		}

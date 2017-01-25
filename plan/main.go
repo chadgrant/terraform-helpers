@@ -99,10 +99,6 @@ func validateBoolFlag(name string, flagval bool) bool {
 	return false
 }
 
-func getBucket(prefix, region, environment string) string {
-	return fmt.Sprintf("%s-%s-%s", prefix, region, environment)
-}
-
 const helpText = `Usage: plan [options] [stack]
   plan searches recursively for tfvar files stored under /terraform root directory
   to pass into terraform as variables using a convention:

@@ -19,10 +19,13 @@ var env = map[string]string{
 	"production":  "prd",
 }
 
-func Configure(bucket, bucketPrefix, region, environment, service, stack string) (bool, error) {
+func Configure(bucket, bucketPrefix, region, environment, service, stack string) error {
 
 	if len(bucket) <= 0 {
-		bucket = getBucket(bucketPrefix, region, environment)
+		bucket, err = getBucket(bucketPrefix, region, environment)
+		if err != nil {
+			return err
+		}
 	}
 	bucketDir := getBucketDir(environment, service, stack)
 
@@ -36,21 +39,11 @@ func Configure(bucket, bucketPrefix, region, environment, service, stack string)
 
 	fmt.Printf("Configuring remote state as S3://%s%s\n", bucket, bucketDir)
 
-	//let the first push go through (create bucket)
-	exists, err := bucketExists(bucket)
-	if err != nil {
-		return false, err
-	}
-
-	if stack == "network" && !exists {
-		return false, nil
-	}
-
 	if err := runTerraformCmd(getWorkingDir(service, stack), args); err != nil {
-		return true, err
+		return err
 	}
 
-	return true, nil
+	return nil
 }
 
 func Pull(service, stack string) error {
@@ -75,12 +68,22 @@ func runTerraformCmd(directory string, args []string) error {
 	return err
 }
 
-func getBucket(prefix, region, environment string) string {
+func getBucket(prefix, region, environment string) (string, error) {
 	if short, ok := env[environment]; ok {
 		environment = short
 	}
 
-	return fmt.Sprintf("%s-%s-%s", prefix, region, environment)
+	b := fmt.Sprintf("%s-%s-%s", prefix, region, environment)
+	if bucketExists(b) {
+		return b, nil
+	}
+
+	b := fmt.Sprintf("%s-%s-%s", prefix, environment, region)
+	if bucketExists(b) {
+		return b, nil
+	}
+
+	return "", fmt.Errorf("No bucket for env: %s region: %s", environment, region)
 }
 
 func getBucketDir(environment, service, stack string) string {
