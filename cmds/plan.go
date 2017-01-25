@@ -63,7 +63,7 @@ func Plan(key, bucket, bucketPrefix, environment, stack, service, target string,
 
 	fmt.Println(strings.Join(args, " "))
 
-	err := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
+	err = state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack)
 	if err != nil {
 		return fmt.Errorf("Error configuring remote state %s", err.Error())
 	}

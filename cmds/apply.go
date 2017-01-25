@@ -60,7 +60,7 @@ func Apply(key, bucket, bucketPrefix, file, environment, stack, service, target 
 		return err
 	}
 
-	if _, serr := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack); serr != nil {
+	if serr := state.Configure(bucket, bucketPrefix, vars["aws_region"], environment, service, stack); serr != nil {
 		return fmt.Errorf("Error pushing remote state %s", serr.Error())
 	}
 
