@@ -22,10 +22,11 @@ var env = map[string]string{
 func Configure(bucket, bucketPrefix, region, environment, service, stack string) error {
 
 	if len(bucket) <= 0 {
-		bucket, err := getBucket(bucketPrefix, region, environment)
+		b, err := getBucket(bucketPrefix, region, environment)
 		if err != nil {
 			return err
 		}
+		bucket = b
 	}
 	bucketDir := getBucketDir(environment, service, stack)
 
